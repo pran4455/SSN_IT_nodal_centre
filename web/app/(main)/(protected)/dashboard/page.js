@@ -7,62 +7,93 @@ import {
 
 import Link from "next/link"
 
+import { recursivelySetEmptyToNotSet, supabase } from "@/lib/server"
+
 export default async function OverviewPage() {
+
+
+  const { data: _scholars, error } = await supabase().from('scholars').select('*,scholar_details(*)')
+
+  const scholars = _scholars.map((scholar) => {
+    const _scholar = recursivelySetEmptyToNotSet(scholar);
+    _scholar.completed = scholar.completed === "Y" ? "Completed" : "Not Completed"
+
+    const scholar_details = _scholar.scholar_details
+    delete _scholar.scholar_details;
+
+    return { ..._scholar, ...scholar_details }
+  })
+
+  const UsersCompleted = scholars.filter((scholar) => scholar.completed === 'Completed').length
+
+  const UsersNotCompleted = scholars.filter((scholar) => scholar.completed === 'Not Completed').length
+
+  const SRFfellowship = scholars.filter((scholar) => scholar.fellowship === 'SRF').length
+
+  const JRFfellowship = scholars.filter((scholar) => scholar.fellowship === 'JRF').length
+
+  const working_at_ssn = scholars.filter((scholar) => scholar.working_at_ssn === 'Y').length
+
+  const lastDecade = scholars.filter((scholar) => {
+    if (scholar?.registration_date !== 'Not Set') {
+      return new Date(scholar.registration_date) >= new Date('2010-01-01') && new Date(scholar.registration_date) <= new Date();
+    }
+  }).length
+
+  const fulltime = scholars.filter((scholar) => scholar.study_type === 'FT').length
+  const parttime = scholars.filter((scholar) => scholar.study_type === 'PT').length
+
 
   const data = [
     {
       title: 'Ongoing Researchers',
-      count: 7,
-      link: "/dashboard/scholars"
+      count: UsersNotCompleted,
+      link: "/dashboard/scholars?status=Not Completed"
     },
     {
       title: 'PhD Completed',
-      count: 10,
-      link: "#"
+      count: UsersCompleted,
+      link: "/dashboard/scholars?status=Completed"
     },
   ]
 
   const SavedFilterFormats = [
     {
-      title: 'Last 2 years',
-      count: 3,
+      title: 'From 2010 to 2020',
+      count: lastDecade,
       link: "#",
       color: 'bg-yellow-500/50'
     },
+   
     {
-      title: 'PG Completed from Anna University',
-      count: 4,
-      link: "#",
+      title: 'Junior Research Fellowship',
+      count: JRFfellowship,
+      link: "/dashboard/scholars?fellowship=JRF",
       color: '#22c55e'
     },
     {
-      title: 'Under Age 27',
-      count: 1,
-      link: "#",
-      color: 'bg-indigo-500/50'
-    },
-    {
-      title: 'Junior Research Fellowship',
-      count: 4,
-      link: "#",
-      color: 'bg-blue-500/50'
-    },
-    {
       title: 'Senior Research Fellowship',
-      count: 2,
-      link: "#",
+      count: SRFfellowship,
+      link: "/dashboard/scholars?fellowship=SRF",
       color: '#FF5757'
     },
     {
-      title: 'Others',
-      count: 4,
-      link: "#"
-    },
-    {
       title: 'Currently Working at SSN',
-      count: 2,
+      count: working_at_ssn,
       link: "#",
       color: 'bg-blue-500/50'
+    },
+    {
+      title: 'Full Time',
+      count: fulltime,
+      link: "/dashboard/scholars?study_type=FT",
+      color: '#eab308'
+    },
+    {
+      title: 'Part Time',
+      count: parttime,
+      link: "/dashboard/scholars?study_type=PT",
+      color: '#6366f1'
     },
   ]
 

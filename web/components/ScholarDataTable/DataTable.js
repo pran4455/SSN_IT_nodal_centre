@@ -34,17 +34,20 @@ export default function DataTable({
         React.useState({
             fellowship: false,
             study_type: false,
-            viva_voice_date: false
+            viva_voice_date: false,
+            university: false,
+            status: false
         })
     const [columnFilters, setColumnFilters] = React.useState(
         []
     )
     const [sorting, setSorting] = React.useState([
         {
-            id: 'registration_date',
+            id: 'register_number',
             desc: true
         }
     ])
+
     const [filtering, setFiltering] = React.useState("")
 
     const table = useReactTable({
@@ -77,6 +80,8 @@ export default function DataTable({
         getFacetedRowModel: getFacetedRowModel(),
         getFacetedUniqueValues: getFacetedUniqueValues(),
     })
+
+
 
     return (
         <div className="relative flex flex-col lg:flex-row gap-4">

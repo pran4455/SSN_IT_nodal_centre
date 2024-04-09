@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { addDays, format, subDays } from "date-fns"
+import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -13,18 +13,36 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { useSearchParams } from 'next/navigation'
+
 export function DatePickerWithRange({
   table,
   className,
-
   from,
   to
 }) {
+
   const [date, setDate] = React.useState({
     from: from || null,
     to: to || null
   })
-console.log(date)
+
+  const searchParams = useSearchParams()
+
+  const onSelect = (date) => {
+    setDate(date)
+
+    table.getColumn("registration_date")?.setFilterValue(date)
+    table.getColumn("registration_date")?.toggleSorting(true)
+
+    const params = new URLSearchParams(searchParams.toString())
+    
+    date?.from && params.set('from',format(date?.from, "dd-MM-yyyy") )
+    date?.to && params.set('to',format(date?.to, "dd-MM-yyyy"))
+
+    window.history.pushState(null, '', `?${params.toString()}`)
+  }
+
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -41,11 +59,11 @@ console.log(date)
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LL-dd-y")} to{" "}
-                  {format(date.to, "LL-dd-y")}
+                  {format(date.from, "dd-LL-y")} to{" "}
+                  {format(date.to, "dd-LL-y")}
                 </>
               ) : (
-                format(date.from, "LL-dd-y")
+                format(date.from, "dd-LL-y")
               )
             ) : (
               <span>Pick a date</span>
@@ -59,11 +77,7 @@ console.log(date)
             captionLayout="dropdown-buttons" fromYear={2005} toYear={2025}
             defaultMonth={date?.from}
             selected={date}
-            onSelect={(date) => {
-              setDate(date)
-
-              table.getColumn("registration_date")?.setFilterValue(date)
-            }}
+            onSelect={onSelect}
             numberOfMonths={2}
           />
         </PopoverContent>

@@ -126,20 +126,17 @@ export const columns = [
 
       return (
         <div>
-          {registration_date ? format(registration_date, "dd-MM-yyyy") : 'Not Set'}
+          {registration_date !== 'Not Set' ? format(registration_date, "dd-MM-yyyy") : registration_date}
         </div>
       )
     },
 
     filterFn: (row, id, value) => {
       const { from: _from, to: _to } = value
-      if (!_from || !_to) return
+      if (!_from || !_to) return false
 
-      const from = format(_from, "dd-MM-yyyy")
-      const to = format(_to, "dd-MM-yyyy")
-
-      return (isEqual(row.getValue(id), from) || isAfter(row.getValue(id), from)) &&
-        (isEqual(row.getValue(id), to) || isBefore(row.getValue(id), to));
+      return (isEqual(row.getValue(id), _from) || isAfter(row.getValue(id), _from)) &&
+        (isEqual(row.getValue(id), _to) || isBefore(row.getValue(id), _to));
     },
   },
   {
@@ -168,16 +165,17 @@ export const columns = [
     cell: ({ row }) => {
       return (
         <div>
-          {row.getValue("completed") === "Y" ? "Completed" : "Not Completed"}
+          {row.getValue("completed")}
         </div>
       )
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+      return row.getValue(id) === value
+
     },
   },
   {
-    accessorKey: "scholar_details",
+    accessorKey: "university",
     label: 'University',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="University" />
@@ -185,12 +183,15 @@ export const columns = [
     cell: ({ row }) => {
       return (
         <div>
-          {row.getValue("scholar_details").university || "Not Set"}
+          {row.getValue("university") || "Not Set"}
         </div>
       )
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+
+      const pattern = new RegExp("\\b" + value.toLowerCase() + "\\w*", "i");
+
+      return pattern.test(row.getValue(id)?.toLowerCase() || 'Not Set')
     },
   }
 ]

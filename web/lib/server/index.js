@@ -36,3 +36,20 @@ export const getUser = async (options = { redirect: false }) => {
 
     return _user
 }
+
+
+export function recursivelySetEmptyToNotSet(obj) {
+    return Object.keys(obj).reduce((acc, key) => {
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null) {
+            acc[key] = recursivelySetEmptyToNotSet(value);
+        } else {
+            if (value === '' || value === null) {
+                acc[key] = 'Not Set';
+            } else {
+                acc[key] = value;
+            }
+        }
+        return acc;
+    }, {});
+}
