@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }) {
            
             <div className="flex flex-1">
                 <Sidebar user={user} />
-                <div className="w-full relative p-6 bg-[#EDF1F5]">
+                <div className="max-w-[calc(100%-60px)] w-full relative p-2 sm:p-6 bg-[#EDF1F5]">
                     {children}
                 </div>
             </div>

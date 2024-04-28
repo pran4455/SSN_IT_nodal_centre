@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -29,14 +28,10 @@ export default function NavUser({ user }) {
 
                             size="sm"
                         >
-                            {/* <Avatar className="h-8 w-8">
-                                <AvatarImage
-                                    src={user.imageUrl}
-                                    alt={user.firstName ?? ""}
-                                />
-                                <AvatarFallback className="capitalize tracking-tighter">{"U"}</AvatarFallback>
-                            </Avatar> */}
-                            <div className="text-xs">
+                            <div className="sm:hidden block text-xs font-bold">
+                                You
+                            </div>
+                            <div className="hidden sm:block text-xs">
                                 {user.email}
                             </div>
                         </Button>

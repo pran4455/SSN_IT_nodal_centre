@@ -50,7 +50,7 @@ export default function DataTable({
         initialState: {
             pagination: {
                 pageIndex: 0, //custom initial page index
-                pageSize: 15, //custom default page size
+                pageSize: 10, //custom default page size
             },
         },
         enableGlobalFilter: true,

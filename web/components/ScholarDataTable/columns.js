@@ -157,21 +157,20 @@ export const columns = [
     },
   },
   {
-    accessorKey: "completed",
-    label: 'Completed',
+    accessorKey: "status",
+    label: 'status',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
       return (
         <div>
-          {row.getValue("completed")}
+          {row.getValue("status")}
         </div>
       )
     },
     filterFn: (row, id, value) => {
       return row.getValue(id) === value
-
     },
   },
   {
@@ -193,5 +192,5 @@ export const columns = [
 
       return pattern.test(row.getValue(id)?.toLowerCase() || 'Not Set')
     },
-  }
+  },
 ]

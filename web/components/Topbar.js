@@ -13,7 +13,7 @@ export default function Topbar({ user }) {
 
             <div className="flex items-center h-[56px] border-b">
                 <Link href="/">
-                    <Image src={Logo} className='w-full sm:w-40 antialiased' alt="logo" />
+                    <Image src={Logo} className="w-40 antialiased" alt="logo" />
                 </Link>
             </div>
 

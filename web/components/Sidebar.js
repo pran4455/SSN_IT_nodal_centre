@@ -41,7 +41,7 @@ export default function Sidebar() {
     const { state, toggle } = useToggleState()
 
     return (
-        <nav className={cn(`bg-white sticky top-[56px] left-0 z-10 border-r border-primary/30 h-[calc(100vh-56px)]`, state && 'sm:w-[340px]')}>
+        <nav className={cn(`bg-white sticky top-[56px] left-0 z-50 border-r border-primary/30 h-[calc(100vh-56px)] min-w-[60px]`, state && 'sm:w-[340px]')}>
             <ul className="flex flex-col gap-1 p-2 mt-2 justify-start font-medium text-md" >
                 {NAVBAR_ROUTES.map((route, index) => {
                     const segmentSkipIndex = 2

@@ -8,7 +8,7 @@ export function DataTableViewOptions({
   table,
 }) {
   return (
-    <ul className="flex gap-4 items-center lg:flex-col lg:items-start lg:gap-0 lg:space-y-4">
+    <ul className="flex flex-wrap gap-4 items-center lg:flex-col lg:items-start lg:gap-0 lg:space-y-4">
       {table
         .getAllColumns()
         .filter(

@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 export function DatePickerWithRange({
   table,
@@ -21,6 +21,9 @@ export function DatePickerWithRange({
   from,
   to
 }) {
+
+  const router = useRouter()
+  const pathname = usePathname()
 
   const [date, setDate] = React.useState({
     from: from || null,
@@ -36,11 +39,11 @@ export function DatePickerWithRange({
     table.getColumn("registration_date")?.toggleSorting(true)
 
     const params = new URLSearchParams(searchParams.toString())
-    
-    date?.from && params.set('from',format(date?.from, "dd-MM-yyyy") )
-    date?.to && params.set('to',format(date?.to, "dd-MM-yyyy"))
 
-    window.history.pushState(null, '', `?${params.toString()}`)
+    date?.from && params.set('from', format(date?.from, "dd-MM-yyyy"))
+    date?.to && params.set('to', format(date?.to, "dd-MM-yyyy"))
+
+    router.push(pathname + `?${params.toString()}`)
   }
 
   return (

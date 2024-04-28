@@ -7,42 +7,19 @@ import {
 
 import Link from "next/link"
 
-import { recursivelySetEmptyToNotSet, supabase } from "@/lib/server"
+import { scholarQueryBuilder, supabase } from "@/lib/server"
 
 export default async function OverviewPage() {
 
+  const { count: UsersCompleted, } = await supabase()
+    .from('scholars')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', true)
 
-  const { data: _scholars, error } = await supabase().from('scholars').select('*,scholar_details(*)')
-
-  const scholars = _scholars.map((scholar) => {
-    const _scholar = recursivelySetEmptyToNotSet(scholar);
-    _scholar.completed = scholar.completed === "Y" ? "Completed" : "Not Completed"
-
-    const scholar_details = _scholar.scholar_details
-    delete _scholar.scholar_details;
-
-    return { ..._scholar, ...scholar_details }
-  })
-
-  const UsersCompleted = scholars.filter((scholar) => scholar.completed === 'Completed').length
-
-  const UsersNotCompleted = scholars.filter((scholar) => scholar.completed === 'Not Completed').length
-
-  const SRFfellowship = scholars.filter((scholar) => scholar.fellowship === 'SRF').length
-
-  const JRFfellowship = scholars.filter((scholar) => scholar.fellowship === 'JRF').length
-
-  const working_at_ssn = scholars.filter((scholar) => scholar.working_at_ssn === 'Y').length
-
-  const lastDecade = scholars.filter((scholar) => {
-    if (scholar?.registration_date !== 'Not Set') {
-      return new Date(scholar.registration_date) >= new Date('2010-01-01') && new Date(scholar.registration_date) <= new Date();
-    }
-  }).length
-
-  const fulltime = scholars.filter((scholar) => scholar.study_type === 'FT').length
-  const parttime = scholars.filter((scholar) => scholar.study_type === 'PT').length
-
+  const { count: UsersNotCompleted } = await supabase()
+    .from('scholars')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', false)
 
   const data = [
     {
@@ -57,45 +34,24 @@ export default async function OverviewPage() {
     },
   ]
 
-  const SavedFilterFormats = [
-    {
-      title: 'From 2010 to 2020',
-      count: lastDecade,
-      link: "#",
-      color: 'bg-yellow-500/50'
-    },
-   
-    {
-      title: 'Junior Research Fellowship',
-      count: JRFfellowship,
-      link: "/dashboard/scholars?fellowship=JRF",
-      color: '#22c55e'
-    },
-    {
-      title: 'Senior Research Fellowship',
-      count: SRFfellowship,
-      link: "/dashboard/scholars?fellowship=SRF",
-      color: '#FF5757'
-    },
-    {
-      title: 'Currently Working at SSN',
-      count: working_at_ssn,
-      link: "#",
-      color: 'bg-blue-500/50'
-    },
-    {
-      title: 'Full Time',
-      count: fulltime,
-      link: "/dashboard/scholars?study_type=FT",
-      color: '#eab308'
-    },
-    {
-      title: 'Part Time',
-      count: parttime,
-      link: "/dashboard/scholars?study_type=PT",
-      color: '#6366f1'
-    },
-  ]
+  const { data: filters } = await supabase()
+    .from('scholar_filters')
+    .select('*,label(id,color)')
+
+
+  const allFilters = await Promise.all(filters.map(async (filter) => {
+    const { data, error, count } = await scholarQueryBuilder(filter.filter, true)
+
+    if (error) {
+      console.log(error)
+    }
+
+    const params = new URLSearchParams(filter.filter).toString()
+
+    return { filter, data, count, params }
+  }));
+
+
 
   return (
     <>
@@ -124,19 +80,23 @@ export default async function OverviewPage() {
       </h3>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-4">
-        {SavedFilterFormats.map((data, index) =>
-          <Card key={index} className={`flex flex-col justify-between rounded-2xl ${data.color}`} style={{ backgroundColor: data.color }}>
+
+
+        {allFilters.map((data, index) =>
+          <Card key={index} className={`flex flex-col justify-between rounded-2xl`} style={{ backgroundColor: data.filter.label.color }}>
             <CardHeader className="flex flex-1 pb-2">
-              <CardTitle className="font-bold sm:text-xl">{data.title}</CardTitle>
+              <CardTitle className="font-bold sm:text-xl">{data.filter.name}</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 flex flex-col-reverse smLflex-row justify-between items-end">
-              <Link className="opacity-80 hover:underline text-xs sm:text-base" href={data.link || "#"}>
+            <CardContent className="pt-4 flex flex-col-reverse sm:flex-row justify-between items-end">
+              <Link className="opacity-80 hover:underline text-xs sm:text-base" href={`/dashboard/scholars?${data.params}` || "#"}>
                 Show More
               </Link>
-              <p className="font-bold sm:text-5xl">{data.count.toString().padStart(2, '0')}</p>
+              <p className="font-bold sm:text-5xl">{data?.count.toString().padStart(2, '0')}</p>
             </CardContent>
           </Card>
         )}
+
+
       </div>
     </>
   )

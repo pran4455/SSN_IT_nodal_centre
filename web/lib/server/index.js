@@ -19,7 +19,6 @@ export const supabase = () => {
 export const getUser = async (options = { redirect: false }) => {
     const LOGIN_ROUTE = isCurrentRouteCheck('/login')
 
-
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
@@ -52,4 +51,25 @@ export function recursivelySetEmptyToNotSet(obj) {
         }
         return acc;
     }, {});
+}
+
+function convertDateFormat(dateString) {
+    const parts = dateString.split("-");
+    return `${parts[1]}-${parts[0]}-${parts[2]}`;
+}
+
+export async function scholarQueryBuilder(filter, onlyCount = false) {
+    let query = supabase()
+        .from('scholars')
+        .select("*", { count: 'exact', head: onlyCount })
+
+    if (filter?.to) query.lte('registration_date', convertDateFormat(filter.to))
+    if (filter?.from) query.gte('registration_date', convertDateFormat(filter.from))
+
+    if (filter?.fellowship) query.eq('fellowship', filter.fellowship)
+    if (filter?.status) query.eq('status', filter.status === 'Completed' ? "Y" : "N")
+
+    if (filter?.study_type) query.eq('study_type', filter.study_type)
+
+    return await query
 }
