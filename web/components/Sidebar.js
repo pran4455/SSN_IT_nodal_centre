@@ -28,11 +28,11 @@ export const NAVBAR_ROUTES = [
         url: '/dashboard/settings',
         icon: Settings
     },
-    {
-        label: 'Logs',
-        url: '/dashboard/logs',
-        icon: ScrollText
-    },
+    // {
+    //     label: 'Logs',
+    //     url: '/dashboard/logs',
+    //     icon: ScrollText
+    // },
 
 ].map((n, idx) => ({ ...n, id: idx + 1 }));
 
